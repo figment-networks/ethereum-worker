@@ -108,9 +108,9 @@ func main() {
 			return
 		}
 		network := strings.Split(pair, ":")
+		logger.Info("Loading network: ", zap.String("name", network[0]), zap.String("address", network[1]), zap.String("node_address", cfg.EthereumAddress))
 		if err = cl.LoadNetworkNames(ctx, network[0], network[1]); err != nil {
 			logger.Fatal("Error loading network ", zap.Strings("config ", network), zap.Error(err))
-
 		}
 	}
 

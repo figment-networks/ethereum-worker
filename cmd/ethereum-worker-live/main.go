@@ -115,7 +115,6 @@ func main() {
 	}
 
 	connector := thttp.NewConnector(cl, logger.GetLogger())
-
 	mux := http.NewServeMux()
 
 	connector.AttachToHandler(mux)
@@ -134,6 +133,10 @@ func getConfig(path string) (cfg *config.Config, err error) {
 		if err := config.FromFile(path, cfg); err != nil {
 			return nil, err
 		}
+	}
+
+	if cfg.EthereumAddress != "" {
+		return cfg, nil
 	}
 
 	if err := config.FromEnv(cfg); err != nil {

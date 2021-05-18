@@ -39,7 +39,6 @@ type Client struct {
 
 // NewClient is a indexer-manager Client constructor
 func NewClient(log *zap.Logger, serverApi Erc20API, t conn.EthereumTransport, erc20ABI abi.ABI) *Client {
-
 	return &Client{
 		log:       log,
 		t:         t,
@@ -48,9 +47,18 @@ func NewClient(log *zap.Logger, serverApi Erc20API, t conn.EthereumTransport, er
 		erc20ABI:  erc20ABI,
 	}
 }
+
 func Init() {
 	getAccountBalanceDuration = endpointDuration.WithLabels("getAccountBalance")
+}
 
+func (c *Client) LoadNetworkNames(ctx context.Context, name, address string) (err error) {
+	cc := &ContractCache{BCC: c.t.GetBoundContractCaller(common.HexToAddress(address), c.erc20ABI)}
+	if cc.Details, err = c.getERC20Details(ctx, cc.BCC.GetContract(), 0); err != nil {
+		return fmt.Errorf("error calling getERC20Details: %w", err)
+	}
+	c.ccm.Set(address, name, cc)
+	return nil
 }
 
 // GetAccountBalance returns account balance
@@ -99,6 +107,7 @@ func (c *Client) getERC20Details(ctx context.Context, bc *bind.BoundContract, bl
 	if details.Name, err = c.serverApi.Name(ctx, bc, blockNumber); err != nil {
 		return details, fmt.Errorf("error calling Name: %w", err)
 	}
+
 	if details.Symbol, err = c.serverApi.Symbol(ctx, bc, blockNumber); err != nil {
 		return details, fmt.Errorf("error calling Symbol: %w", err)
 	}

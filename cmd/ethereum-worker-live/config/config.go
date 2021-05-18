@@ -26,9 +26,9 @@ type Config struct {
 
 	Address  string `json:"address" envconfig:"ADDRESS" default:"0.0.0.0"`
 	HTTPPort string `json:"http_port" envconfig:"HTTP_PORT" default:"8097"`
-	ChainID  string `json:"chain_id" envconfig:"CHAIN_ID" default:"mainnet"`
 
-	EthereumAddress string `json:"ethereum_address" envconfig:"ETHEREUM_ADDRESS" default:"http://0.0.0.0:8545"`
+	EthereumAddress        string `json:"ethereum_address" envconfig:"ETHEREUM_ADDRESS" default:"http://0.0.0.0:8545"`
+	PredefinedNetworkNames string `json:"predefined_network_named" envconfig:"PREDEFINED_NETWORK_NAMES" default:"skale:0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7"`
 
 	// Rollbar
 	RollbarAccessToken string `json:"rollbar_access_token" envconfig:"ROLLBAR_ACCESS_TOKEN"`

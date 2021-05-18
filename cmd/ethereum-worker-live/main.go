@@ -7,6 +7,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -57,7 +58,6 @@ func main() {
 		RollbarAccessToken: cfg.RollbarAccessToken,
 		RollbarServerRoot:  cfg.RollbarServerRoot,
 		Version:            config.GitSHA,
-		ChainIDs:           []string{cfg.ChainID},
 	}
 
 	if cfg.AppEnv == "development" || cfg.AppEnv == "local" {
@@ -100,6 +100,20 @@ func main() {
 	}
 	cl := client.NewClient(logger.GetLogger(), &erc20.ERC20Caller{}, tr, *erc20abi)
 	client.Init()
+
+	nNames := strings.Split(cfg.PredefinedNetworkNames, ";")
+	for _, pair := range nNames {
+		if !strings.ContainsAny(pair, ":") {
+			logger.Fatal("PredefinedNetworkNames has to be in name:address;name:address;name:address format")
+			return
+		}
+		network := strings.Split(pair, ":")
+		if err = cl.LoadNetworkNames(ctx, network[0], network[1]); err != nil {
+			logger.Fatal("Error loading network ", zap.Strings("config ", network), zap.Error(err))
+
+		}
+	}
+
 	connector := thttp.NewConnector(cl, logger.GetLogger())
 
 	mux := http.NewServeMux()

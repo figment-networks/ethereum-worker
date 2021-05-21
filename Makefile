@@ -25,6 +25,6 @@ build-live:
 pack-release:
 	@mkdir -p ./release
 	@make build-live
-	@mv ./worker-live ./release/worker-live
+	@mv ./ethereum-worker-live ./release/worker-live
 	@zip -r ethereum-worker ./release
 	@rm -rf ./release

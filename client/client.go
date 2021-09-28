@@ -26,6 +26,7 @@ type Erc20API interface {
 
 var (
 	getAccountBalanceDuration *metrics.GroupObserver
+	getTotalNetworkSupplyDuration *metrics.GroupObserver
 )
 
 // Client connecting to indexer-manager
@@ -50,6 +51,7 @@ func NewClient(log *zap.Logger, serverApi Erc20API, t conn.EthereumTransport, er
 
 func Init() {
 	getAccountBalanceDuration = endpointDuration.WithLabels("getAccountBalance")
+	getTotalNetworkSupplyDuration = endpointDuration.WithLabels("getTotalNetworkSupply")
 }
 
 func (c *Client) LoadNetworkNames(ctx context.Context, name, address string) (err error) {
@@ -97,6 +99,44 @@ func (c *Client) GetERC20AccountBalance(ctx context.Context, network, contract, 
 	return []structures.Balance{{
 		Values: structures.Values{
 			Value: balance,
+		},
+		Details: cc.Details,
+	}}, nil
+}
+
+// GetERC20TotalSupply returns the total supply of tokens for a contractAccount or network if we've assigned it in config
+func (c *Client) GetERC20TotalSupply(ctx context.Context, network, contract string, height uint64) ([]structures.Balance, error) {
+	timer := metrics.NewTimer(getTotalNetworkSupplyDuration)
+	defer timer.ObserveDuration()
+
+	var (
+		cc    *ContractCache
+		found bool
+	)
+
+	if network != "" {
+		cc, found = c.ccm.GetByNetwork(network)
+	}
+	if !found {
+		cc = &ContractCache{BCC: c.t.GetBoundContractCaller(common.HexToAddress(contract), c.erc20ABI)}
+	}
+
+	contractC := cc.BCC.GetContract()
+	totalSupply, err := c.serverApi.TotalSupply(ctx, contractC, height)
+	if err != nil {
+		return nil, fmt.Errorf("error calling Balanceof: %w", err)
+	}
+
+	if !found {
+		if cc.Details, err = c.getERC20Details(ctx, contractC, height); err != nil {
+			return nil, fmt.Errorf("error calling getERC20Details: %w", err)
+		}
+		c.ccm.Set(contract, "", cc)
+	}
+
+	return []structures.Balance{{
+		Values: structures.Values{
+			Value: totalSupply,
 		},
 		Details: cc.Details,
 	}}, nil

@@ -19,8 +19,8 @@ deployments:
     service:
       ports:
         http:
-          port: 8097
-          targetPort: 8097
+          port: 8087
+          targetPort: 8087
           protocol: TCP
     replicas: 1
     pod:

@@ -1,0 +1,54 @@
+global:
+  annotations:
+    figment.io/github_repository: "github.com/figment-networks/ethereum-worker"
+    ad.datadoghq.com/kava-worker.check_names: '["openmetrics"]'
+    ad.datadoghq.com/kava-worker.init_configs: '[{}]'
+    ad.datadoghq.com/kava-worker.instances: '[{
+        "prometheus_url": "http://%%host%%:8087/metrics",
+        "namespace": "workers",
+        "metrics": ["*"],
+        "send_distribution_buckets": true,
+        "tags": ["network:skale","chain_id:skale","group:indexer-workers","cluster:k8s"]
+      }]'
+  labels:
+    team: indexers
+    severity: noncritical
+
+deployments:
+  ethereum-worker:
+    service:
+      ports:
+        http:
+          port: 8087
+          targetPort: 8087
+          protocol: TCP
+    replicas: 1
+    pod:
+      containers:
+        ethereum-worker:
+          env:
+            APP_ENV: production
+            ADDRESS:
+              fieldRef:
+                fieldPath: status.podIP
+            ETHEREUM_ADDRESS:
+              secretsManagerKeyRef:
+                key: production/indexers/ethereum-worker
+                property: ethereum_node_address
+            PREDEFINED_NETWORK_NAMES: skale:0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7
+            HEALTH_CHECK_INTERVAL: 10s
+            HTTP_PORT: 8087
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 8087
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 8087
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 500m
+            limits:
+              memory: 200Mi

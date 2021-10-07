@@ -1,8 +1,7 @@
 # ------------------------------------------------------------------------------
 # Builder Image
 # ------------------------------------------------------------------------------
-FROM golang AS build
-
+FROM golang:alpine AS build
 WORKDIR /build
 
 COPY ./go.mod .
@@ -19,6 +18,8 @@ COPY ./transport ./transport
 ENV GOARCH=amd64
 ENV GOOS=linux
 
+RUN apk add --no-cache gcc musl-dev linux-headers git
+RUN apk add build-base
 RUN make build-live
 
 # ------------------------------------------------------------------------------

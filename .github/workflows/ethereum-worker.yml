@@ -123,7 +123,7 @@ jobs:
             for resource in $(kubectl get deployment,statefulset --namespace="$EKS_NAMESPACE" -l chart="$(basename "$dir")" --output=name)
             do
               echo "Status [$resource]"
-              kubectl rollout status --namespace="$EKS_NAMESPACE" --timeout=60s "$resource"
+              kubectl rollout status --namespace="$EKS_NAMESPACE" --timeout=120s "$resource"
             done
           done
       - name: Kubernetes deployment failure debug information

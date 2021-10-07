@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.0.3] - 2021-10-07
+### Added
+### Changed
+### Fixed
+- linux build err in docker
 ## [0.0.2] - 2021-10-07
 ### Added
 - adds an endpoint `/getTotalSupply` for looking up total token amounts for an ERC20 chain

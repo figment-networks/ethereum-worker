@@ -1,14 +1,13 @@
 global:
   annotations:
     figment.io/github_repository: "github.com/figment-networks/ethereum-worker"
-    ad.datadoghq.com/kava-worker.check_names: '["openmetrics"]'
-    ad.datadoghq.com/kava-worker.init_configs: '[{}]'
-    ad.datadoghq.com/kava-worker.instances: '[{
+    ad.datadoghq.com/ethereum-worker.check_names: '["openmetrics"]'
+    ad.datadoghq.com/ethereum-worker.init_configs: '[{}]'
+    ad.datadoghq.com/ethereum-worker.instances: '[{
         "prometheus_url": "http://%%host%%:8087/metrics",
         "namespace": "workers",
         "metrics": ["*"],
-        "send_distribution_buckets": true,
-        "tags": ["network:skale","chain_id:skale","group:indexer-workers","cluster:k8s"]
+        "send_distribution_buckets": true
       }]'
   labels:
     team: indexers

@@ -94,7 +94,7 @@ jobs:
             echo "Diffing [$dir] in namespace [$EKS_NAMESPACE]"
             helm dep up "$dir"
             helm diff --context=3 upgrade --allow-unreleased --namespace "$EKS_NAMESPACE" "$(basename "$dir")" "$dir" \
-            --set global.image="$IMAGE"
+            --set global.image="$IMAGE" -f "$dir/production.yaml"
           done
       - name: Deploy
         id: deploy
@@ -108,7 +108,7 @@ jobs:
             echo "Deploying [$dir] to namespace [$EKS_NAMESPACE]"
             #helm dep up "$dir"
             helm upgrade --install --namespace "$EKS_NAMESPACE" "$(basename "$dir")" "$dir" \
-            --set global.image="$IMAGE"
+            --set global.image="$IMAGE" -f "$dir/production.yaml"
           done
       - name: Rollout status
         id: rollout_status

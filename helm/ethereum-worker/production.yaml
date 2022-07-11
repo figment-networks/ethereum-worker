@@ -1,0 +1,11 @@
+
+deployments:
+  ethereum-worker:
+    pod:
+      containers:
+        ethereum-worker:
+          env:
+            ETHEREUM_ADDRESS:
+              secretsManagerKeyRef:
+                key: indexers/ethereum-worker
+                property: ethereum_node_address
